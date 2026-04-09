@@ -6,7 +6,7 @@
     <title>Gray & Gold • Mood Gallery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         body { font-family: 'Inter', system-ui, sans-serif; }
         
         .image-card {
@@ -52,7 +52,7 @@
             <div class="flex bg-zinc-900 rounded-3xl p-1 shadow-inner">
                 <button onclick="switchMode('depressive')" 
                         id="depress-btn"
-                        class="mode-btn flex items-center gap-2 px-7 py-3.5 rounded-3xl font-medium text-sm transition-all">
+                        class="mode-btn flex items-center gap-2 px-7 py-3.5 rounded-3xl font-medium text-sm transition-all bg-white text-zinc-900">
                     <span class="text-xl">🌫️</span>
                     <span>Depressive Grayscale</span>
                 </button>
@@ -65,31 +65,23 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- Slideshow Button -->
                 <button onclick="toggleSlideshow()" 
                         class="flex items-center gap-2 bg-white text-zinc-900 hover:bg-amber-300 px-6 py-3 rounded-3xl font-medium text-sm shadow transition-colors">
                     <span id="play-icon" class="text-lg">▶️</span>
                     <span id="slideshow-text">Play Slideshow</span>
                 </button>
                 
-                <!-- Random button -->
                 <button onclick="randomImage()" 
                         class="w-10 h-10 flex items-center justify-center text-2xl hover:scale-110 transition-transform">
                     🎲
                 </button>
-                
-                <a href="https://github.com" target="_blank"
-                   class="text-zinc-400 hover:text-white text-sm flex items-center gap-1">
-                    <span class="text-xl">📋</span>
-                    <span class="hidden sm:inline">Copy HTML</span>
-                </a>
             </div>
         </div>
 
         <!-- TITLE BAR -->
         <div class="px-8 py-10 text-center">
             <h2 id="mode-title" class="text-5xl font-semibold tracking-tighter mb-2">Depressive Grayscale</h2>
-            <p id="mode-desc" class="text-zinc-400 max-w-md mx-auto">Quiet moments of solitude and melancholy beauty captured in timeless black &amp; white.</p>
+            <p id="mode-desc" class="text-zinc-400 max-w-md mx-auto">Quiet moments of solitude and melancholy beauty.</p>
         </div>
 
         <!-- GALLERY -->
@@ -120,7 +112,7 @@
         </div>
     </div>
 
-    <!-- SLIDESHOW OVERLAY (fullscreen) -->
+    <!-- SLIDESHOW OVERLAY -->
     <div id="slideshow-overlay" onclick="if(event.target.id === 'slideshow-overlay') stopSlideshow()" 
          class="hidden fixed inset-0 bg-black z-[10000] flex flex-col">
         
@@ -139,7 +131,7 @@
                 <button onclick="stopSlideshow()" class="text-sm font-medium px-4 py-2 bg-white/10 hover:bg-white/20 rounded-2xl">Close</button>
             </div>
             
-            <div class="text-xs text-zinc-400 font-mono" id="slide-counter">1 / 7</div>
+            <div class="text-xs text-zinc-400 font-mono" id="slide-counter">1 / 12</div>
         </div>
         
         <div class="flex-1 flex items-center justify-center p-8 relative">
@@ -155,41 +147,36 @@
     </div>
 
     <script>
-        // Tailwind initialization
-        function initTailwind() {
-            return {
-                config(userConfig = {}) {
-                    return {
-                        content: [],
-                        theme: { extend: {} },
-                        ...userConfig,
-                    }
-                },
-                theme: {
-                    extend: {},
-                },
-            }
-        }
-
-        // Image database (live Unsplash random images – always fresh and relevant)
+        // === RELIABLE IMAGE DATABASE using picsum.photos CDN ===
+        // This is a free, fast, dedicated image CDN. No files in your repo. Always loads.
         const imageData = {
             depressive: [
-                { url: "https://source.unsplash.com/800x1000/?lonely,blackandwhite", caption: "Lonely bench in the rain" },
-                { url: "https://source.unsplash.com/800x1000/?rain,window,blackandwhite", caption: "Rain against the soul" },
-                { url: "https://source.unsplash.com/800x1000/?fog,forest,blackandwhite", caption: "Lost in the gray mist" },
-                { url: "https://source.unsplash.com/800x1000/?empty,street,blackandwhite", caption: "Abandoned city street" },
-                { url: "https://source.unsplash.com/800x1000/?sad,portrait,blackandwhite", caption: "Heavy thoughts" },
-                { url: "https://source.unsplash.com/800x1000/?desolate,blackandwhite", caption: "Empty horizon" },
-                { url: "https://source.unsplash.com/800x1000/?alone,blackandwhite", caption: "Solitude at dusk" }
+                { id: 29,   caption: "Foggy lonely road" },
+                { id: 30,   caption: "Misty dark forest" },
+                { id: 36,   caption: "Rainy empty street" },
+                { id: 44,   caption: "Melancholy window view" },
+                { id: 48,   caption: "Solitary figure in gray" },
+                { id: 64,   caption: "Desolate winter landscape" },
+                { id: 91,   caption: "Cold empty bench" },
+                { id: 101,  caption: "Heavy thoughts" },
+                { id: 160,  caption: "Rain against the soul" },
+                { id: 201,  caption: "Quiet emptiness" },
+                { id: 211,  caption: "Lost in the fog" },
+                { id: 870,  caption: "Fading into gray" }
             ],
             sunset: [
-                { url: "https://source.unsplash.com/800x1000/?family,sunset", caption: "Family walking at sunset" },
-                { url: "https://source.unsplash.com/800x1000/?family,beach,sunset", caption: "Golden hour on the beach" },
-                { url: "https://source.unsplash.com/800x1000/?happy,family,sunset", caption: "Laughing together in the light" },
-                { url: "https://source.unsplash.com/800x1000/?children,sunset", caption: "Kids playing in the sunset" },
-                { url: "https://source.unsplash.com/800x1000/?family,silhouette,sunset", caption: "Silhouettes of love" },
-                { url: "https://source.unsplash.com/800x1000/?parents,kids,sunset", caption: "Perfect family moment" },
-                { url: "https://source.unsplash.com/800x1000/?couple,sunset,beach", caption: "Warm sunset embrace" }
+                { id: 1005, caption: "Family walking at sunset" },
+                { id: 1015, caption: "Golden beach family moment" },
+                { id: 1016, caption: "Warm sunset embrace" },
+                { id: 1027, caption: "Kids playing in golden light" },
+                { id: 1033, caption: "Silhouettes of love" },
+                { id: 1040, caption: "Happy family sunset" },
+                { id: 106,  caption: "Vibrant colorful sunset" },
+                { id: 133,  caption: "Family on the beach at dusk" },
+                { id: 1009, caption: "Romantic golden hour" },
+                { id: 1018, caption: "Laughing together in the light" },
+                { id: 1080, caption: "Perfect family sunset glow" },
+                { id: 1335, caption: "Children running at sunset" }
             ]
         }
 
@@ -197,6 +184,13 @@
         let currentImages = []
         let slideshowInterval = null
         let slideshowIndex = 0
+
+        // Helper to get reliable CDN URL + optional grayscale
+        function getImageUrl(item, mode) {
+            let url = `https://picsum.photos/id/${item.id}/900/1200`
+            if (mode === 'depressive') url += '?grayscale'
+            return url
+        }
 
         // Render the gallery
         function renderGallery(mode) {
@@ -206,16 +200,17 @@
             const galleryEl = document.getElementById('gallery')
             galleryEl.innerHTML = ''
 
-            currentImages.forEach((image, i) => {
+            currentImages.forEach((item, i) => {
+                const url = getImageUrl(item, mode)
                 const cardHTML = `
                     <div onclick="showModal(${i})" class="image-card bg-zinc-900 rounded-3xl overflow-hidden cursor-pointer">
                         <div class="relative">
-                            <img src="${image.url}" 
+                            <img src="${url}" 
                                  class="w-full aspect-[4/3] object-cover ${mode === 'depressive' ? 'grayscale-img' : ''}"
-                                 alt="${image.caption}">
+                                 alt="${item.caption}" loading="lazy">
                             <div class="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
                             <p class="absolute bottom-6 left-6 right-6 text-white font-medium text-lg leading-tight drop-shadow">
-                                ${image.caption}
+                                ${item.caption}
                             </p>
                         </div>
                     </div>
@@ -229,7 +224,7 @@
             
             if (mode === 'depressive') {
                 titleEl.textContent = 'Depressive Grayscale'
-                descEl.textContent = 'Quiet moments of solitude and melancholy beauty captured in timeless black & white.'
+                descEl.textContent = 'Quiet moments of solitude and melancholy beauty.'
                 titleEl.className = 'text-5xl font-semibold tracking-tighter mb-2 text-zinc-100'
             } else {
                 titleEl.textContent = 'Family Colorful Sunsets'
@@ -244,19 +239,18 @@
             document.getElementById('sunset-btn').classList.toggle('text-zinc-900', mode === 'sunset')
         }
 
-        // Show enlarged image in modal
         function showModal(index) {
-            const image = currentImages[index]
-            const modal = document.getElementById('modal')
-            const modalImage = document.getElementById('modal-image')
-            const modalCaption = document.getElementById('modal-caption')
-            const modalMode = document.getElementById('modal-mode')
-
-            modalImage.src = image.url
-            modalImage.className = `w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl ${currentMode === 'depressive' ? 'grayscale-img' : ''}`
-            modalCaption.textContent = image.caption
-            modalMode.textContent = currentMode === 'depressive' ? '🌫️ Depressive Grayscale' : '🌅 Family Colorful Sunset'
+            const item = currentImages[index]
+            const url = getImageUrl(item, currentMode)
             
+            const modalImage = document.getElementById('modal-image')
+            modalImage.src = url
+            modalImage.className = `w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl ${currentMode === 'depressive' ? 'grayscale-img' : ''}`
+            
+            document.getElementById('modal-caption').textContent = item.caption
+            document.getElementById('modal-mode').textContent = currentMode === 'depressive' ? '🌫️ Depressive Grayscale' : '🌅 Family Colorful Sunset'
+            
+            const modal = document.getElementById('modal')
             modal.classList.remove('hidden')
             modal.classList.add('flex')
         }
@@ -267,13 +261,11 @@
             modal.classList.remove('flex')
         }
 
-        // Switch between depressive & sunset modes
         function switchMode(mode) {
             if (slideshowInterval) stopSlideshow()
             renderGallery(mode)
         }
 
-        // Start / stop slideshow
         function toggleSlideshow() {
             const overlay = document.getElementById('slideshow-overlay')
             
@@ -298,10 +290,11 @@
             titleEl.textContent = currentMode === 'depressive' ? 'Depressive Grayscale' : 'Family Colorful Sunsets'
             
             function showCurrent() {
-                const image = currentImages[slideshowIndex]
-                imageEl.src = image.url
+                const item = currentImages[slideshowIndex]
+                const url = getImageUrl(item, currentMode)
+                imageEl.src = url
                 imageEl.className = `slideshow-image max-h-full max-w-full rounded-3xl shadow-2xl ${currentMode === 'depressive' ? 'grayscale-img' : ''}`
-                captionEl.textContent = image.caption
+                captionEl.textContent = item.caption
                 counterEl.textContent = `${slideshowIndex + 1} / ${currentImages.length}`
             }
             
@@ -314,10 +307,8 @@
         }
 
         function stopSlideshow() {
-            if (slideshowInterval) {
-                clearInterval(slideshowInterval)
-                slideshowInterval = null
-            }
+            if (slideshowInterval) clearInterval(slideshowInterval)
+            slideshowInterval = null
             document.getElementById('slideshow-overlay').classList.add('hidden')
             document.getElementById('play-icon').textContent = '▶️'
             document.getElementById('slideshow-text').textContent = 'Play Slideshow'
@@ -326,33 +317,31 @@
         function prevSlide() {
             if (!slideshowInterval) return
             slideshowIndex = (slideshowIndex - 1 + currentImages.length) % currentImages.length
-            const imageEl = document.getElementById('slideshow-image')
-            const image = currentImages[slideshowIndex]
-            imageEl.src = image.url
-            document.getElementById('current-caption').textContent = image.caption
+            const item = currentImages[slideshowIndex]
+            const url = getImageUrl(item, currentMode)
+            document.getElementById('slideshow-image').src = url
+            document.getElementById('current-caption').textContent = item.caption
             document.getElementById('slide-counter').textContent = `${slideshowIndex + 1} / ${currentImages.length}`
         }
 
         function nextSlide() {
             if (!slideshowInterval) return
             slideshowIndex = (slideshowIndex + 1) % currentImages.length
-            const imageEl = document.getElementById('slideshow-image')
-            const image = currentImages[slideshowIndex]
-            imageEl.src = image.url
-            document.getElementById('current-caption').textContent = image.caption
+            const item = currentImages[slideshowIndex]
+            const url = getImageUrl(item, currentMode)
+            document.getElementById('slideshow-image').src = url
+            document.getElementById('current-caption').textContent = item.caption
             document.getElementById('slide-counter').textContent = `${slideshowIndex + 1} / ${currentImages.length}`
         }
 
-        // Pick a random image from current mode
         function randomImage() {
             if (currentImages.length === 0) return
             const randomIndex = Math.floor(Math.random() * currentImages.length)
             showModal(randomIndex)
         }
 
-        // Initialize everything
+        // Initialize
         window.onload = () => {
-            initTailwind()
             renderGallery('depressive')
             
             // Keyboard shortcuts
@@ -362,15 +351,14 @@
                     toggleSlideshow()
                 }
                 if (e.key === 'Escape') {
-                    if (document.getElementById('slideshow-overlay').classList.contains('hidden') === false) {
-                        stopSlideshow()
-                    } else if (!document.getElementById('modal').classList.contains('hidden')) {
-                        closeModal()
-                    }
+                    const overlay = document.getElementById('slideshow-overlay')
+                    const modal = document.getElementById('modal')
+                    if (overlay && !overlay.classList.contains('hidden')) stopSlideshow()
+                    else if (modal && !modal.classList.contains('hidden')) closeModal()
                 }
             })
             
-            console.log('%c✅ Gray & Gold Mood Gallery ready! Just open this HTML file in your browser.', 'color:#f59e0b; font-family:monospace')
+            console.log('%c✅ Gray & Gold now using stable picsum.photos CDN – images will load instantly!', 'color:#f59e0b; font-family:monospace')
         }
     </script>
 </body>
