@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gray & Gold • Mood Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        
+        .image-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .image-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+        
+        .modal {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .grayscale-img {
+            filter: grayscale(95%) contrast(1.15) brightness(0.85);
+        }
+        
+        .slideshow-image {
+            transition: opacity 0.6s ease;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <div class="flex justify-between items-center px-8 py-6 border-b border-zinc-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-zinc-400 to-amber-600 rounded-3xl flex items-center justify-center text-3xl shadow-inner">
+                    🌫️
+                </div>
+                <div>
+                    <h1 class="text-4xl font-semibold tracking-tighter">Gray &amp; Gold</h1>
+                    <p class="text-xs text-zinc-500 -mt-1">depressive grayscale • family sunsets</p>
+                </div>
+            </div>
+
+            <!-- Mode Switcher -->
+            <div class="flex bg-zinc-900 rounded-3xl p-1 shadow-inner">
+                <button onclick="switchMode('depressive')" 
+                        id="depress-btn"
+                        class="mode-btn flex items-center gap-2 px-7 py-3.5 rounded-3xl font-medium text-sm transition-all">
+                    <span class="text-xl">🌫️</span>
+                    <span>Depressive Grayscale</span>
+                </button>
+                <button onclick="switchMode('sunset')" 
+                        id="sunset-btn"
+                        class="mode-btn flex items-center gap-2 px-7 py-3.5 rounded-3xl font-medium text-sm transition-all">
+                    <span class="text-xl">🌅</span>
+                    <span>Family Colorful Sunsets</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Slideshow Button -->
+                <button onclick="toggleSlideshow()" 
+                        class="flex items-center gap-2 bg-white text-zinc-900 hover:bg-amber-300 px-6 py-3 rounded-3xl font-medium text-sm shadow transition-colors">
+                    <span id="play-icon" class="text-lg">▶️</span>
+                    <span id="slideshow-text">Play Slideshow</span>
+                </button>
+                
+                <!-- Random button -->
+                <button onclick="randomImage()" 
+                        class="w-10 h-10 flex items-center justify-center text-2xl hover:scale-110 transition-transform">
+                    🎲
+                </button>
+                
+                <a href="https://github.com" target="_blank"
+                   class="text-zinc-400 hover:text-white text-sm flex items-center gap-1">
+                    <span class="text-xl">📋</span>
+                    <span class="hidden sm:inline">Copy HTML</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- TITLE BAR -->
+        <div class="px-8 py-10 text-center">
+            <h2 id="mode-title" class="text-5xl font-semibold tracking-tighter mb-2">Depressive Grayscale</h2>
+            <p id="mode-desc" class="text-zinc-400 max-w-md mx-auto">Quiet moments of solitude and melancholy beauty captured in timeless black &amp; white.</p>
+        </div>
+
+        <!-- GALLERY -->
+        <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-8 pb-12">
+            <!-- Filled by JavaScript -->
+        </div>
+    </div>
+
+    <!-- FULLSCREEN MODAL VIEWER -->
+    <div onclick="if(event.target.id === 'modal') closeModal()" 
+         id="modal"
+         class="hidden fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4">
+        
+        <div class="max-w-5xl w-full modal">
+            <div class="flex justify-end mb-4">
+                <button onclick="closeModal()" 
+                        class="text-white text-5xl leading-none hover:text-amber-300 transition-colors">×</button>
+            </div>
+            
+            <img id="modal-image" 
+                 class="w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl" 
+                 alt="">
+            
+            <div class="text-center mt-6">
+                <p id="modal-caption" class="text-2xl font-medium text-white"></p>
+                <p id="modal-mode" class="text-zinc-400 text-sm mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDESHOW OVERLAY (fullscreen) -->
+    <div id="slideshow-overlay" onclick="if(event.target.id === 'slideshow-overlay') stopSlideshow()" 
+         class="hidden fixed inset-0 bg-black z-[10000] flex flex-col">
+        
+        <div class="flex justify-between items-center px-8 py-6 bg-black/70">
+            <div class="flex items-center gap-3">
+                <span id="slideshow-mode-icon" class="text-3xl"></span>
+                <h3 id="slideshow-title" class="text-xl font-medium">Slideshow</h3>
+            </div>
+            
+            <div class="flex items-center gap-6 text-white">
+                <button onclick="prevSlide()" class="text-3xl hover:text-amber-300">‹</button>
+                <button onclick="toggleSlideshow()" id="slideshow-pause-btn" class="flex items-center gap-2 text-xl">
+                    <span id="pause-icon">❚❚</span>
+                </button>
+                <button onclick="nextSlide()" class="text-3xl hover:text-amber-300">›</button>
+                <button onclick="stopSlideshow()" class="text-sm font-medium px-4 py-2 bg-white/10 hover:bg-white/20 rounded-2xl">Close</button>
+            </div>
+            
+            <div class="text-xs text-zinc-400 font-mono" id="slide-counter">1 / 7</div>
+        </div>
+        
+        <div class="flex-1 flex items-center justify-center p-8 relative">
+            <img id="slideshow-image" 
+                 class="slideshow-image max-h-full max-w-full rounded-3xl shadow-2xl" 
+                 alt="">
+        </div>
+        
+        <div class="text-center pb-8 text-white/70 text-sm flex items-center justify-center gap-2">
+            <span id="current-caption"></span>
+            <span class="text-xs bg-white/10 px-2 py-0.5 rounded">Auto • 3s</span>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind initialization
+        function initTailwind() {
+            return {
+                config(userConfig = {}) {
+                    return {
+                        content: [],
+                        theme: { extend: {} },
+                        ...userConfig,
+                    }
+                },
+                theme: {
+                    extend: {},
+                },
+            }
+        }
+
+        // Image database (live Unsplash random images – always fresh and relevant)
+        const imageData = {
+            depressive: [
+                { url: "https://source.unsplash.com/800x1000/?lonely,blackandwhite", caption: "Lonely bench in the rain" },
+                { url: "https://source.unsplash.com/800x1000/?rain,window,blackandwhite", caption: "Rain against the soul" },
+                { url: "https://source.unsplash.com/800x1000/?fog,forest,blackandwhite", caption: "Lost in the gray mist" },
+                { url: "https://source.unsplash.com/800x1000/?empty,street,blackandwhite", caption: "Abandoned city street" },
+                { url: "https://source.unsplash.com/800x1000/?sad,portrait,blackandwhite", caption: "Heavy thoughts" },
+                { url: "https://source.unsplash.com/800x1000/?desolate,blackandwhite", caption: "Empty horizon" },
+                { url: "https://source.unsplash.com/800x1000/?alone,blackandwhite", caption: "Solitude at dusk" }
+            ],
+            sunset: [
+                { url: "https://source.unsplash.com/800x1000/?family,sunset", caption: "Family walking at sunset" },
+                { url: "https://source.unsplash.com/800x1000/?family,beach,sunset", caption: "Golden hour on the beach" },
+                { url: "https://source.unsplash.com/800x1000/?happy,family,sunset", caption: "Laughing together in the light" },
+                { url: "https://source.unsplash.com/800x1000/?children,sunset", caption: "Kids playing in the sunset" },
+                { url: "https://source.unsplash.com/800x1000/?family,silhouette,sunset", caption: "Silhouettes of love" },
+                { url: "https://source.unsplash.com/800x1000/?parents,kids,sunset", caption: "Perfect family moment" },
+                { url: "https://source.unsplash.com/800x1000/?couple,sunset,beach", caption: "Warm sunset embrace" }
+            ]
+        }
+
+        let currentMode = 'depressive'
+        let currentImages = []
+        let slideshowInterval = null
+        let slideshowIndex = 0
+
+        // Render the gallery
+        function renderGallery(mode) {
+            currentMode = mode
+            currentImages = imageData[mode]
+
+            const galleryEl = document.getElementById('gallery')
+            galleryEl.innerHTML = ''
+
+            currentImages.forEach((image, i) => {
+                const cardHTML = `
+                    <div onclick="showModal(${i})" class="image-card bg-zinc-900 rounded-3xl overflow-hidden cursor-pointer">
+                        <div class="relative">
+                            <img src="${image.url}" 
+                                 class="w-full aspect-[4/3] object-cover ${mode === 'depressive' ? 'grayscale-img' : ''}"
+                                 alt="${image.caption}">
+                            <div class="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent"></div>
+                            <p class="absolute bottom-6 left-6 right-6 text-white font-medium text-lg leading-tight drop-shadow">
+                                ${image.caption}
+                            </p>
+                        </div>
+                    </div>
+                `
+                galleryEl.innerHTML += cardHTML
+            })
+
+            // Update title & description
+            const titleEl = document.getElementById('mode-title')
+            const descEl = document.getElementById('mode-desc')
+            
+            if (mode === 'depressive') {
+                titleEl.textContent = 'Depressive Grayscale'
+                descEl.textContent = 'Quiet moments of solitude and melancholy beauty captured in timeless black & white.'
+                titleEl.className = 'text-5xl font-semibold tracking-tighter mb-2 text-zinc-100'
+            } else {
+                titleEl.textContent = 'Family Colorful Sunsets'
+                descEl.textContent = 'Warm, vibrant family moments bathed in golden sunset light.'
+                titleEl.className = 'text-5xl font-semibold tracking-tighter mb-2 text-amber-300'
+            }
+
+            // Highlight active mode button
+            document.getElementById('depress-btn').classList.toggle('bg-white', mode === 'depressive')
+            document.getElementById('depress-btn').classList.toggle('text-zinc-900', mode === 'depressive')
+            document.getElementById('sunset-btn').classList.toggle('bg-white', mode === 'sunset')
+            document.getElementById('sunset-btn').classList.toggle('text-zinc-900', mode === 'sunset')
+        }
+
+        // Show enlarged image in modal
+        function showModal(index) {
+            const image = currentImages[index]
+            const modal = document.getElementById('modal')
+            const modalImage = document.getElementById('modal-image')
+            const modalCaption = document.getElementById('modal-caption')
+            const modalMode = document.getElementById('modal-mode')
+
+            modalImage.src = image.url
+            modalImage.className = `w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl ${currentMode === 'depressive' ? 'grayscale-img' : ''}`
+            modalCaption.textContent = image.caption
+            modalMode.textContent = currentMode === 'depressive' ? '🌫️ Depressive Grayscale' : '🌅 Family Colorful Sunset'
+            
+            modal.classList.remove('hidden')
+            modal.classList.add('flex')
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+
+        // Switch between depressive & sunset modes
+        function switchMode(mode) {
+            if (slideshowInterval) stopSlideshow()
+            renderGallery(mode)
+        }
+
+        // Start / stop slideshow
+        function toggleSlideshow() {
+            const overlay = document.getElementById('slideshow-overlay')
+            
+            if (slideshowInterval) {
+                stopSlideshow()
+                return
+            }
+            
+            overlay.classList.remove('hidden')
+            slideshowIndex = 0
+            startSlideshow()
+        }
+
+        function startSlideshow() {
+            const imageEl = document.getElementById('slideshow-image')
+            const captionEl = document.getElementById('current-caption')
+            const counterEl = document.getElementById('slide-counter')
+            const modeIcon = document.getElementById('slideshow-mode-icon')
+            const titleEl = document.getElementById('slideshow-title')
+            
+            modeIcon.textContent = currentMode === 'depressive' ? '🌫️' : '🌅'
+            titleEl.textContent = currentMode === 'depressive' ? 'Depressive Grayscale' : 'Family Colorful Sunsets'
+            
+            function showCurrent() {
+                const image = currentImages[slideshowIndex]
+                imageEl.src = image.url
+                imageEl.className = `slideshow-image max-h-full max-w-full rounded-3xl shadow-2xl ${currentMode === 'depressive' ? 'grayscale-img' : ''}`
+                captionEl.textContent = image.caption
+                counterEl.textContent = `${slideshowIndex + 1} / ${currentImages.length}`
+            }
+            
+            showCurrent()
+            
+            slideshowInterval = setInterval(() => {
+                slideshowIndex = (slideshowIndex + 1) % currentImages.length
+                showCurrent()
+            }, 3000)
+        }
+
+        function stopSlideshow() {
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval)
+                slideshowInterval = null
+            }
+            document.getElementById('slideshow-overlay').classList.add('hidden')
+            document.getElementById('play-icon').textContent = '▶️'
+            document.getElementById('slideshow-text').textContent = 'Play Slideshow'
+        }
+
+        function prevSlide() {
+            if (!slideshowInterval) return
+            slideshowIndex = (slideshowIndex - 1 + currentImages.length) % currentImages.length
+            const imageEl = document.getElementById('slideshow-image')
+            const image = currentImages[slideshowIndex]
+            imageEl.src = image.url
+            document.getElementById('current-caption').textContent = image.caption
+            document.getElementById('slide-counter').textContent = `${slideshowIndex + 1} / ${currentImages.length}`
+        }
+
+        function nextSlide() {
+            if (!slideshowInterval) return
+            slideshowIndex = (slideshowIndex + 1) % currentImages.length
+            const imageEl = document.getElementById('slideshow-image')
+            const image = currentImages[slideshowIndex]
+            imageEl.src = image.url
+            document.getElementById('current-caption').textContent = image.caption
+            document.getElementById('slide-counter').textContent = `${slideshowIndex + 1} / ${currentImages.length}`
+        }
+
+        // Pick a random image from current mode
+        function randomImage() {
+            if (currentImages.length === 0) return
+            const randomIndex = Math.floor(Math.random() * currentImages.length)
+            showModal(randomIndex)
+        }
+
+        // Initialize everything
+        window.onload = () => {
+            initTailwind()
+            renderGallery('depressive')
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/') {
+                    e.preventDefault()
+                    toggleSlideshow()
+                }
+                if (e.key === 'Escape') {
+                    if (document.getElementById('slideshow-overlay').classList.contains('hidden') === false) {
+                        stopSlideshow()
+                    } else if (!document.getElementById('modal').classList.contains('hidden')) {
+                        closeModal()
+                    }
+                }
+            })
+            
+            console.log('%c✅ Gray & Gold Mood Gallery ready! Just open this HTML file in your browser.', 'color:#f59e0b; font-family:monospace')
+        }
+    </script>
+</body>
+</html>
